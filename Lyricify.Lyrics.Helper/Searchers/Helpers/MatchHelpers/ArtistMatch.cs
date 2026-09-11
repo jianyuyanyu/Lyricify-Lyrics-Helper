@@ -14,14 +14,15 @@ namespace Lyricify.Lyrics.Searchers.Helpers
         {
             if (artist1 == null || artist2 == null) return null;
 
-            var list1 = artist1.ToList();
-            var list2 = artist2.ToList();
+            var list1 = artist1.Where(artist => !string.IsNullOrWhiteSpace(artist)).ToList();
+            var list2 = artist2.Where(artist => !string.IsNullOrWhiteSpace(artist)).ToList();
+            if (list1.Count == 0 || list2.Count == 0) return null;
 
             // 预处理：转小写 & 中文转换
             for (int i = 0; i < list1.Count; i++)
-                list1[i] = list1[i].ToLower().ToSC(true);
+                list1[i] = list1[i].ToLowerInvariant().ToSC(true);
             for (int i = 0; i < list2.Count; i++)
-                list2[i] = list2[i].ToLower().ToSC(true);
+                list2[i] = list2[i].ToLowerInvariant().ToSC(true);
 
             // 比较匹配数量
             int count = 0;

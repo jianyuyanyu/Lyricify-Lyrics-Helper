@@ -12,29 +12,31 @@ namespace Lyricify.Lyrics.Searchers.Helpers
         /// <returns>名称匹配程度</returns>
         public static NameMatchType? CompareName(string? name1, string? name2)
         {
-            if (name1 == null || name2 == null) return null;
+            if (string.IsNullOrWhiteSpace(name1) || string.IsNullOrWhiteSpace(name2)) return null;
 
-            name1 = name1.ToSC(true).ToLower().Trim();
-            name2 = name2.ToSC(true).ToLower().Trim();
+            static string NormalizeName(string name)
+            {
+                return name
+                .ToSC(true)
+                .ToLowerInvariant()
+                .Trim()
+                .Replace('’', '\'')
+                .Replace('，', ',')
+                .Replace('（', '(')
+                .Replace('）', ')')
+                .Replace('[', '(')
+                .Replace(']', ')')
+                .RemoveDuoSpaces()
+                .Replace(" (", "(")
+                .Replace("( ", "(")
+                .Replace(" )", ")");
+            }
+
+            name1 = NormalizeName(name1);
+            name2 = NormalizeName(name2);
 
             if (name1 == name2) return NameMatchType.Perfect;
 
-            name1 = name1
-                .Replace('’', '\'')
-                .Replace('，', ',')
-                .Replace("（", " (")
-                .Replace("）", " )")
-                .Replace('[', '(')
-                .Replace(']', ')')
-                .RemoveDuoSpaces();
-            name2 = name2
-                .Replace('’', '\'')
-                .Replace('，', ',')
-                .Replace("（", " (")
-                .Replace("）", " )")
-                .Replace('[', '(')
-                .Replace(']', ')')
-                .RemoveDuoSpaces();
             name1 = name1.Replace("acoustic version", "acoustic");
             name2 = name2.Replace("acoustic version", "acoustic");
 
@@ -75,7 +77,7 @@ namespace Lyricify.Lyrics.Searchers.Helpers
             {
                 if (str1.Contains('(') && !str2.Contains('(')
                     && str1[..str1.IndexOf('(')].Trim() == str2) return true;
-                if (str2.Contains('(') && !str2.Contains('(')
+                if (str2.Contains('(') && !str1.Contains('(')
                     && str2[..str2.IndexOf('(')].Trim() == str1) return true;
                 return false;
             }

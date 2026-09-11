@@ -36,13 +36,13 @@ namespace Lyricify.Lyrics.Searchers.Helpers
             totalScore += albumArtistMatch.GetMatchScore() * 0.2;
             totalScore += durationMatch.GetMatchScore();
 
-            // 针对 MatchType 为 null 的进行按比例拉伸调整
-            var nullCount = 0d;
-            const int fullScore = 30; // 25.2
-            nullCount += albumMatch is null ? 0.4 : 0;
-            nullCount += albumArtistMatch is null ? 0.2 : 0;
-            nullCount += durationMatch is null ? 1 : 0;
-            totalScore = totalScore * fullScore / (fullScore - nullCount * 7);
+            // 缺失的可选信息不参与评分，按可比较的字段重新分配权重
+            const double fullScore = (1 + 1 + 0.4 + 0.2 + 1) * 7;
+            var availableScore = (1 + 1) * 7d;
+            if (albumMatch is not null) availableScore += 0.4 * 7;
+            if (albumArtistMatch is not null) availableScore += 0.2 * 7;
+            if (durationMatch is not null) availableScore += 7;
+            totalScore *= fullScore / availableScore;
 
             return totalScore switch
             {
